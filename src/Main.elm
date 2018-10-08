@@ -3,6 +3,7 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 import Browser
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (class, src, type_, value)
+import Html.Events exposing (onClick, onInput)
 
 
 
@@ -10,7 +11,7 @@ import Html.Attributes exposing (class, src, type_, value)
 
 
 type alias Player =
-    { name : String }
+    { name : String, order : Int }
 
 
 type alias Model =
@@ -20,7 +21,7 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model [ { name = "1" }, { name = "2" } ], Cmd.none )
+    ( Model [ { name = "1", order = 0 }, { name = "2", order = 0 } ], Cmd.none )
 
 
 
@@ -28,12 +29,14 @@ init _ =
 
 
 type Msg
-    = NoOp
+    = Shuffle
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        Shuffle ->
+            ( model, Cmd.none )
 
 
 
@@ -50,7 +53,7 @@ view model =
             [ input [ type_ "button", value "Add", class "bt add-bt" ] [] ]
         , div
             [ class "shuffle" ]
-            [ input [ type_ "button", value "Shuffle", class "bt shuffle-bt" ] [] ]
+            [ input [ type_ "button", value "Shuffle", class "bt shuffle-bt", onClick Shuffle ] [] ]
         , div
             [ class "name-list" ]
             (descPlayers model.players)
