@@ -41,27 +41,28 @@ update msg model =
     case msg of
         Shuffle ->
             let
-                listLen =
-                    List.length model.players
-                        |> (\n -> n * 10)
+                ps =
+                    List.map (\p -> { name = p.name, order = genOrder p.order }) model.players
+                        |> List.sortWith sortByOrder
             in
-            ( model, Cmd.none )
+            ( { model | players = ps }, Cmd.none )
 
         AddPlayer v ->
-            let
-                l =
-                    List.append model.players [ { name = v, order = genOrder (List.length model.players) } ]
-            in
-            ( { model | players = l, playerInputVal = "" }, Cmd.none )
+            ( { model | players = List.append model.players [ { name = v, order = genOrder (List.length model.players) } ], playerInputVal = "" }, Cmd.none )
 
         ChangePlayerInputVal v ->
             ( { model | playerInputVal = v }, Cmd.none )
 
 
 genOrder : Int -> Int
-genOrder seed =
-    Random.step (Random.int 0 99999) (Random.initialSeed seed)
+genOrder initSeed =
+    Random.step (Random.int 0 99999) (Random.initialSeed initSeed)
         |> (\n -> Tuple.first n)
+
+
+sortByOrder : Player -> Player -> Basics.Order
+sortByOrder p1 p2 =
+    compare p1.order p2.order
 
 
 
