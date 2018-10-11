@@ -48,7 +48,15 @@ update msg model =
             ( { model | players = ps }, Cmd.none )
 
         AddPlayer v ->
-            ( { model | players = List.append model.players [ { name = v, order = genOrder (List.length model.players) } ], playerInputVal = "" }, Cmd.none )
+            let
+                ps =
+                    if not (v == "") && List.length (List.filter (\p -> p.name == v) model.players) == 0 then
+                        List.append model.players [ { name = v, order = genOrder (List.length model.players) } ]
+
+                    else
+                        model.players
+            in
+            ( { model | players = ps, playerInputVal = "" }, Cmd.none )
 
         ChangePlayerInputVal v ->
             ( { model | playerInputVal = v }, Cmd.none )
@@ -63,6 +71,24 @@ genOrder initSeed =
 sortByOrder : Player -> Player -> Basics.Order
 sortByOrder p1 p2 =
     compare p1.order p2.order
+
+
+emptyNameFilter : Player -> Bool
+emptyNameFilter p =
+    if p.name == "" then
+        False
+
+    else
+        True
+
+
+duplicateNameFilter : Player -> String -> Bool
+duplicateNameFilter p v =
+    if p.name == v then
+        True
+
+    else
+        False
 
 
 
