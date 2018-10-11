@@ -2,7 +2,7 @@
   display: grid;
   height: 100%;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: 0.5fr 0.5fr 0.5fr 2.1fr;
+  // grid-template-rows: 0.5fr 0.5fr 0.5fr 2.1fr;
   grid-gap: 1px 1px;
   grid-template-areas: "name bt-add" "shuffle shuffle" "name-list name-list" ". .";
 }
@@ -68,10 +68,18 @@ input[type=text] {
   background-color: #555555;
 }
 
+.delete-bt {
+  padding: 8px 10px;
+  margin: 8px 0 0 10px;
+  background-color: #ff7043;
+}
+
 .n {
   margin: 4px 0;
   animation-duration: 2s;
   animation-name: fadeIn;
+  word-break : break-all; /* 折返し */
+  text-align: center;
 }
 
 @keyframes fadeIn {

@@ -34,6 +34,7 @@ type Msg
     = Shuffle
     | AddPlayer String
     | ChangePlayerInputVal String
+    | Delete Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -61,6 +62,9 @@ update msg model =
         ChangePlayerInputVal v ->
             ( { model | playerInputVal = v }, Cmd.none )
 
+        Delete v ->
+            ( { model | players = List.filter (\p -> not (p.order == v)) model.players }, Cmd.none )
+
 
 genOrder : Int -> Int
 genOrder initSeed =
@@ -71,24 +75,6 @@ genOrder initSeed =
 sortByOrder : Player -> Player -> Basics.Order
 sortByOrder p1 p2 =
     compare p1.order p2.order
-
-
-emptyNameFilter : Player -> Bool
-emptyNameFilter p =
-    if p.name == "" then
-        False
-
-    else
-        True
-
-
-duplicateNameFilter : Player -> String -> Bool
-duplicateNameFilter p v =
-    if p.name == v then
-        True
-
-    else
-        False
 
 
 
@@ -114,7 +100,14 @@ view model =
 
 descPlayers : List Player -> List (Html Msg)
 descPlayers args =
-    List.map (\p -> div [ class "n" ] [ text p.name ]) args
+    List.map
+        (\p ->
+            div [ class "n" ]
+                [ text p.name
+                , input [ type_ "button", value "Delete", class "bt delete-bt", onClick (Delete p.order) ] []
+                ]
+        )
+        args
 
 
 subscriptions : Model -> Sub Msg
