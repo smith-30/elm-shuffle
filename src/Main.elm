@@ -1,9 +1,10 @@
 module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
-import Html exposing (Html, div, input, text)
+import Html exposing (Attribute, Html, div, input, text)
 import Html.Attributes exposing (class, src, type_, value)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (keyCode, on, onClick, onInput)
+import Json.Decode as Json
 import Random
 
 
@@ -35,6 +36,7 @@ type Msg
     | AddPlayer String
     | ChangePlayerInputVal String
     | Delete Int
+    | KeyDown Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -49,21 +51,20 @@ update msg model =
             ( { model | players = ps }, Cmd.none )
 
         AddPlayer v ->
-            let
-                ps =
-                    if not (v == "") && List.length (List.filter (\p -> p.name == v) model.players) == 0 then
-                        List.append model.players [ { name = v, order = genOrder (List.length model.players) } ]
-
-                    else
-                        model.players
-            in
-            ( { model | players = ps, playerInputVal = "" }, Cmd.none )
+            ( { model | players = addPlayer v model.players, playerInputVal = "" }, Cmd.none )
 
         ChangePlayerInputVal v ->
             ( { model | playerInputVal = v }, Cmd.none )
 
         Delete v ->
             ( { model | players = List.filter (\p -> not (p.order == v)) model.players }, Cmd.none )
+
+        KeyDown key ->
+            if key == 13 then
+                ( { model | players = addPlayer model.playerInputVal model.players, playerInputVal = "" }, Cmd.none )
+
+            else
+                ( model, Cmd.none )
 
 
 genOrder : Int -> Int
@@ -77,6 +78,15 @@ sortByOrder p1 p2 =
     compare p1.order p2.order
 
 
+addPlayer : String -> List Player -> List Player
+addPlayer str playerList =
+    if not (str == "") && List.length (List.filter (\p -> p.name == str) playerList) == 0 then
+        List.append playerList [ { name = str, order = genOrder (List.length playerList) } ]
+
+    else
+        playerList
+
+
 
 ---- VIEW ----
 
@@ -85,7 +95,7 @@ view : Model -> Html Msg
 view model =
     div [ class "grid-container" ]
         [ div [ class "name" ]
-            [ input [ type_ "text", value model.playerInputVal, onInput (\v -> ChangePlayerInputVal v) ] [] ]
+            [ input [ type_ "text", value model.playerInputVal, onInput (\v -> ChangePlayerInputVal v), onKeyDown KeyDown ] [] ]
         , div
             [ class "bt-add" ]
             [ input [ type_ "button", value "Add", class "bt add-bt", onClick (AddPlayer model.playerInputVal) ] [] ]
@@ -113,6 +123,11 @@ descPlayers args =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
+
+
+onKeyDown : (Int -> msg) -> Attribute msg
+onKeyDown tagger =
+    on "keydown" (Json.map tagger keyCode)
 
 
 main =
